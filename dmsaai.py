@@ -102,6 +102,7 @@ def check_and_install_dependencies():
                 splash.showMessage("Installation complete! Resuming startup...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
                 app.processEvents()
                 time.sleep(2) # Brief pause so the user sees the success message
+                os.execl(sys.executable, sys.executable, *sys.argv)                
             except subprocess.CalledProcessError as e:
                 err = QMessageBox()
                 err.setIcon(QMessageBox.Critical)
