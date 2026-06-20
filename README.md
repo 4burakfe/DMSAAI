@@ -1,9 +1,16 @@
-## DMSAAI
+# DMSAAI
 
 
 **DMSAAI** is a standalone AI-powered renal cortical scintigraphy analysis platform for Tc-99m DMSA studies. The application provides automated kidney segmentation, split renal function (SRF) quantification, and AI-assisted renal morphology evaluation from DICOM nuclear medicine images.
 
-![banner](dmsaaiart.jpg)
+## Authors
+
+Dr. Burak Demir - Mehmet Akif İnan Education and Research Hospital - Department of Nuclear Medicine - Şanlıurfa, Turkey
+
+Dr. Demet Nak - Recep Tayyip Erdogan University - Department of Nuclear Medicine - Rize, Turkey
+
+---
+![banner](banner.jpg)
 
 ## Features
 
@@ -168,9 +175,4 @@ Not published yet
 
 MIT license
 
-## Authors
-
-Burak Demir and Demet Nak
-
----
 
