@@ -29,8 +29,12 @@ except ImportError:
 app = QApplication(sys.argv)
 
 # Load your banner image
-splash_pixmap = QPixmap("banner.jpg") 
-splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint)
+splash_pixmap = QPixmap("banner.png") 
+# Include FramelessWindowHint just to be safe
+splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+
+# Enable semi-transparent background rendering
+splash.setAttribute(Qt.WA_TranslucentBackground, True)
 splash.show()
 app.processEvents() # Force UI to immediately draw the splash screen
 
