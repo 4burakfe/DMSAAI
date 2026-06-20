@@ -397,6 +397,30 @@ class DMSAAnalyzerApp(QMainWindow):
         scrollbar = self.log_box.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
+
+    def extract_all_file_paths(self, paths):
+        """Recursively scans folders to extract all files."""
+        all_files = []
+        for path in paths:
+            if os.path.isdir(path):
+                # Walk through all subdirectories
+                for root, _, files in os.walk(path):
+                    for file in files:
+                        # Skip hidden system files (like .DS_Store on Mac)
+                        if not file.startswith('.'):
+                            all_files.append(os.path.join(root, file))
+            elif os.path.isfile(path):
+                all_files.append(path)
+        return all_files
+
+
+
+
+
+
+
+
+
     # --- Drag and Drop Events ---
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -405,8 +429,20 @@ class DMSAAnalyzerApp(QMainWindow):
             event.ignore()
 
     def dropEvent(self, event):
-        files = [u.toLocalFile() for u in event.mimeData().urls()]
-        self.process_files(files)
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.CopyAction)
+            event.accept()
+            
+            # Get raw paths from the drop event
+            raw_paths = [str(url.toLocalFile()) for url in event.mimeData().urls()]
+            
+            # Use our new helper to scan subfolders
+            expanded_file_paths = self.extract_all_file_paths(raw_paths)
+            
+            # Pass the expanded list to the processor
+            self.process_files(expanded_file_paths)
+        else:
+            event.ignore()
 
     # --- File Loading Logic ---
     def load_dicom_dialog(self):
@@ -556,15 +592,38 @@ class DMSAAnalyzerApp(QMainWindow):
         ref_patient_id = None
         ref_patient_name = None
 
-        self.log(f"Processing {len(file_paths)} file(s)...")
+        self.log(f"Scanning {len(file_paths)} potential file(s)...")
 
         for path in file_paths:
             try:
-                ds = pydicom.dcmread(path)
+                # Read the DICOM header. Using defer_size speeds up scanning 
+                # by avoiding reading massive pixel arrays until necessary.
+                ds = pydicom.dcmread(path, force=True)
             except Exception as e:
-                self.log(f"Could not read {os.path.basename(path)}. Skipping.")
+                # If it fails to read, it's a system file or non-dicom. Quietly skip.
                 continue
 
+            # --- NEW: DICOM GUARDRAILS ---
+            # Extract Modality and SOP Class UID safely
+            modality = getattr(ds, 'Modality', '')
+            sop_class = getattr(ds, 'SOPClassUID', '')
+            
+            # 1.2.840.10008.5.1.4.1.1.20 is the official UID for Nuclear Medicine Image Storage
+            is_nm = (modality == 'NM') or ('1.2.840.10008.5.1.4.1.1.20' in sop_class)
+            
+            if not is_nm:
+                # It's a valid DICOM, but not a Nuclear Medicine scan (e.g., Structured Report)
+                # Comment out the log below if it gets too spammy for large folders
+                self.log(f"Ignored {os.path.basename(path)}: Not an NM scan (Modality: {modality}).")
+                continue
+            
+            # Verify it actually has pixel data
+            if not hasattr(ds, 'pixel_array'):
+                self.log(f"Ignored {os.path.basename(path)}: No pixel data found.")
+                continue
+            # -----------------------------
+
+            # Continue with existing patient validation
             pid = str(getattr(ds, 'PatientID', 'Unknown_ID'))
             pname = str(getattr(ds, 'PatientName', 'Unknown_Name'))
 
