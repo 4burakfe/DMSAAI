@@ -1,4 +1,3 @@
-# DMSAAI
 **DMSAAI (Aether)** is a standalone AI-powered renal cortical scintigraphy analysis platform for Tc-99m DMSA studies. The application provides automated kidney segmentation, split renal function (SRF) quantification, and AI-assisted renal morphology evaluation from DICOM nuclear medicine images.
 
 ## Features
