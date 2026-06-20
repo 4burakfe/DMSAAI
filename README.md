@@ -170,7 +170,8 @@ MIT license
 
 ## Authors
 
-Dr.Burak Demir - Mehmet Akif İnan Education and Research Hospital - Department of Nuclear Medicine - Şanlıurfa, Turkey
+Dr. Burak Demir - Mehmet Akif İnan Education and Research Hospital - Department of Nuclear Medicine - Şanlıurfa, Turkey
+
 Dr. Demet Nak - Recep Tayyip Erdogan University - Department of Nuclear Medicine - Rize, Turkey
 
 ---
