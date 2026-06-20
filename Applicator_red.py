@@ -1,5 +1,40 @@
 ﻿import sys
 import os
+import time
+
+
+# 1. IMPORT LIGHTWEIGHT PYQT5 MODULES FIRST
+from PyQt5.QtWidgets import QApplication, QSplashScreen
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
+
+# 2. INITIALIZE APP & SPLASH SCREEN IMMEDIATELY
+app = QApplication(sys.argv)
+
+# Load your banner image
+splash_pixmap = QPixmap("banner.jpg") 
+splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint)
+splash.show()
+app.processEvents() # Force UI to immediately draw the splash screen
+
+# 3. ARTIFICIAL DELAY (e.g., 3 seconds)
+
+app.processEvents()
+
+# Optional: Update text on the banner
+splash.showMessage("Loading PyTorch and MONAI dependencies...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+app.processEvents()
+
+
+
+
+
+
+
+
+
+
+
 import pydicom
 import numpy as np
 import cv2
@@ -1133,8 +1168,27 @@ class DMSAAnalyzerApp(QMainWindow):
             self.log(f"Evaluation error: {str(e)}")
 
 
+# --- HIDE CONSOLE FUNCTION ---
+def hide_console():
+    """Hides the Windows console window dynamically."""
+    if os.name == 'nt':  # Check if operating system is Windows
+        import ctypes
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd != 0:
+            ctypes.windll.user32.ShowWindow(hwnd, 0)  # 0 represents SW_HIDE
+
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    # Note: 'app = QApplication(sys.argv)' was already executed at the very top!
+    
+    # Initialize your main application
     ex = DMSAAnalyzerApp()
     ex.show()
+    
+    # Remove the splash screen smoothly by linking its closure to the main window
+    splash.finish(ex)
+    
+    # Hide the background console
+    hide_console()
+    
+    # Execute the PyQt loop
     sys.exit(app.exec_())
