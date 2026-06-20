@@ -52,7 +52,7 @@ def check_and_install_dependencies():
     missing_packages = []
     for module, pip_name in dependencies.items():
         try:
-            splash.showMessage(f"Checking and loading {module}...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+            splash.showMessage(f"Loading {module}...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
             app.processEvents()
             __import__(module)
         except ImportError:
