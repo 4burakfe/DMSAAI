@@ -1,13 +1,30 @@
 ﻿import sys
 import os
 import time
-
+import subprocess
 
 # 1. IMPORT LIGHTWEIGHT PYQT5 MODULES FIRST
-from PyQt5.QtWidgets import QApplication, QSplashScreen
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+try:
+    # Added QMessageBox to the import list
+    from PyQt5.QtWidgets import QApplication, QSplashScreen, QMessageBox
+    from PyQt5.QtGui import QPixmap
+    from PyQt5.QtCore import Qt
+except ImportError:
+    print("ERROR: PyQt5 is not installed.")
+    print("Will try to install.")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyQt5"])
 
+# 1. IMPORT LIGHTWEIGHT PYQT5 MODULES FIRST
+try:
+    # Added QMessageBox to the import list
+    from PyQt5.QtWidgets import QApplication, QSplashScreen, QMessageBox
+    from PyQt5.QtGui import QPixmap
+    from PyQt5.QtCore import Qt
+except ImportError:
+    print("ERROR: PyQt5 is not installed.")
+    print("could not be installed will shutdown.")
+    time.sleep(5)
+    sys.exit(1)
 # 2. INITIALIZE APP & SPLASH SCREEN IMMEDIATELY
 app = QApplication(sys.argv)
 
@@ -17,36 +34,123 @@ splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint)
 splash.show()
 app.processEvents() # Force UI to immediately draw the splash screen
 
-# 3. ARTIFICIAL DELAY (e.g., 3 seconds)
+# --- NEW: DEPENDENCY SAFEGUARD ---
+def check_and_install_dependencies():
+    # Dictionary mapping internal module names to their PyPI package names
+    dependencies = {
+        'pydicom': 'pydicom',
+        'numpy': 'numpy',
+        'cv2': 'opencv-python',
+        'torch': 'torch',
+        'monai': 'monai',
+        'matplotlib': 'matplotlib',
+        'scipy': 'scipy',
+        'einops': 'einops'
 
+    }
+    
+    missing_packages = []
+    for module, pip_name in dependencies.items():
+        try:
+            splash.showMessage(f"Checking and loading {module}...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+            app.processEvents()
+            __import__(module)
+        except ImportError:
+            missing_packages.append(pip_name)
+            
+    if missing_packages:
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Missing Dependencies Detected")
+        msg.setText("The application is missing the following required packages:\n\n" + "\n".join(missing_packages))
+        msg.setInformativeText("Would you like to automatically install them now?\n\n(Note: This may take a few minutes. The application will pause during installation.)")
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.Yes)
+        msg.setWindowFlags(Qt.WindowStaysOnTopHint) # Keep dialog above splash screen
+        
+        if msg.exec_() == QMessageBox.Yes:
+            
+            # --- NEW: PYTORCH CUDA SAFEGUARD ---
+            if 'torch' in missing_packages:
+                torch_msg = QMessageBox()
+                torch_msg.setIcon(QMessageBox.Warning)
+                torch_msg.setWindowTitle("CUDA / GPU Acceleration Warning")
+                torch_msg.setText("PyTorch is required, but automatic installation will only download the CPU version.")
+                torch_msg.setInformativeText(
+                    "If you have an NVIDIA GPU, the CPU-only version will be slower.\n\n"
+                    "It is highly recommended to click 'Cancel' and install PyTorch manually using the specific command for your system from:\n"
+                    "https://pytorch.org/\n\n"
+                    "Are you sure you want to proceed with the CPU-only installation?"
+                )
+                torch_msg.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+                torch_msg.setDefaultButton(QMessageBox.Cancel) # Default to Cancel to protect the user
+                torch_msg.setWindowFlags(Qt.WindowStaysOnTopHint)
+                
+                if torch_msg.exec_() != QMessageBox.Yes:
+                    splash.showMessage("Installation cancelled by user. Exiting...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+                    app.processEvents()
+                    time.sleep(2)
+                    sys.exit(0)
+            # -----------------------------------
+
+            splash.showMessage(f"Installing missing packages... Please wait.", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+            app.processEvents()
+            
+            try:
+                # Use sys.executable to ensure pip installs to the correct active Python environment
+                subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_packages])
+                splash.showMessage("Installation complete! Resuming startup...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+                app.processEvents()
+                time.sleep(2) # Brief pause so the user sees the success message
+            except subprocess.CalledProcessError as e:
+                err = QMessageBox()
+                err.setIcon(QMessageBox.Critical)
+                err.setWindowTitle("Installation Failed")
+                err.setText(f"Failed to install packages automatically.\n\nPlease manually run:\npip install {' '.join(missing_packages)}")
+                err.exec_()
+                sys.exit(1)
+        else:
+            # User chose not to install
+            sys.exit(0)
+
+# Run the dependency check before any heavy imports proceed
+splash.showMessage("Checking dependencies...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
 app.processEvents()
+check_and_install_dependencies()
+# ---------------------------------
 
-# Optional: Update text on the banner
-splash.showMessage("Loading PyTorch and MONAI dependencies...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+# Proceed with your original sequenced loading
+splash.showMessage("Loading pydicom and numpy...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
 app.processEvents()
-
-
-
-
-
-
-
-
-
-
 
 import pydicom
 import numpy as np
 import cv2
+
+splash.showMessage("Loading Torch...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+app.processEvents()
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+splash.showMessage("Loading MONAI...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+app.processEvents()
+
 from monai.networks.nets import SwinUNETR, UNet, AttentionUnet, SegResNet, DynUNet, DenseNet, resnet18
+
+splash.showMessage("Loading PyQt...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+app.processEvents()
+
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QPushButton, QFileDialog, QLabel, 
                              QComboBox, QTextEdit, QSlider,QCheckBox)
 from PyQt5.QtCore import Qt
+
+splash.showMessage("Loading Matplotlib and scipy...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+app.processEvents()
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import scipy.ndimage as ndi
@@ -505,12 +609,15 @@ class DMSAAnalyzerApp(QMainWindow):
         desc += str(getattr(ds, 'SeriesDescription', '')).lower() + " "
         desc += str(getattr(ds, 'ProtocolName', '')).lower()
 
-        if 'ant' in desc: name_hint = 'ant'
-        elif 'post' in desc: name_hint = 'post'
-        elif 'lao' in desc: name_hint = 'lao'
-        elif 'rpo' in desc: name_hint = 'rpo'
-        elif 'lpo' in desc: name_hint = 'lpo'
-        elif 'rao' in desc: name_hint = 'rao'
+        desc = desc.lower()
+
+
+        if 'ant' in desc and 'post' not in desc: name_hint = 'ant'
+        elif 'post' in desc and 'ant' not in desc: name_hint = 'post'
+        elif 'lao' in desc and 'rpo' not in desc: name_hint = 'lao'
+        elif 'rpo' in desc and 'lao' not in desc: name_hint = 'rpo'
+        elif 'lpo' in desc and 'rao' not in desc: name_hint = 'lpo'
+        elif 'rao' in desc and 'lpo' not in desc: name_hint = 'rao'
 
         angle_hint = None
         if angle is not None:
