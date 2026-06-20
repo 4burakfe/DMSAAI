@@ -470,7 +470,7 @@ class DMSAAnalyzerApp(QMainWindow):
 
         control_layout.addWidget(QLabel("Select Colormap:"))
         self.combo_cmap = QComboBox()
-        self.combo_cmap.addItems(['gray_r', 'gray', 'nipy_spectral', 'gist_heat','gnuplot2', 'CMRmap','inferno', 'afmhot', 'gnuplot', 'jet', 'turbo', 'cubehelix', 'gist_ncar' ])
+        self.combo_cmap.addItems(['gray', 'gray_r', 'nipy_spectral', 'gist_heat','gnuplot2', 'CMRmap','inferno', 'afmhot', 'gnuplot', 'jet', 'turbo', 'cubehelix', 'gist_ncar' ])
         self.combo_cmap.currentTextChanged.connect(self.update_plots)
         control_layout.addWidget(self.combo_cmap)
 
