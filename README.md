@@ -121,7 +121,7 @@ horseshoe.pth
 Launch the application:
 
 ```bash
-python Applicator_red.py
+Double click directly to dmsaai.py
 ```
 
 ### Workflow
