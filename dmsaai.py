@@ -29,7 +29,7 @@ except ImportError:
 app = QApplication(sys.argv)
 
 # Load your banner image
-splash_pixmap = QPixmap("banner.png") 
+splash_pixmap = QPixmap("banner2.png") 
 # Include FramelessWindowHint just to be safe
 splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
 
