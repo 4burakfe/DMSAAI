@@ -10,7 +10,7 @@ Dr. Burak Demir - Mehmet Akif İnan Education and Research Hospital - Department
 Dr. Demet Nak - Recep Tayyip Erdogan University - Department of Nuclear Medicine - Rize, Turkey
 
 ---
-![banner](banner.png)
+![banner](banner.jpg)
 
 ## Features
 
