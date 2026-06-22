@@ -2,6 +2,7 @@
 import os
 import time
 import subprocess
+import random
 
 # 1. IMPORT LIGHTWEIGHT PYQT5 MODULES FIRST
 try:
@@ -28,8 +29,9 @@ except ImportError:
 # 2. INITIALIZE APP & SPLASH SCREEN IMMEDIATELY
 app = QApplication(sys.argv)
 
+
 # Load your banner image
-splash_pixmap = QPixmap("banner2.png") 
+splash_pixmap = QPixmap(f"banner{random.randint(1, 4)}.png") 
 # Include FramelessWindowHint just to be safe
 splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
 
