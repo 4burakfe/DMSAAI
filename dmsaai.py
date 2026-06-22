@@ -31,7 +31,7 @@ app = QApplication(sys.argv)
 
 
 # Load your banner image
-splash_pixmap = QPixmap(f"banner{random.randint(1, 4)}.png") 
+splash_pixmap = QPixmap(f"banner{random.randint(1, 3)}.png") 
 # Include FramelessWindowHint just to be safe
 splash = QSplashScreen(splash_pixmap, Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
 
